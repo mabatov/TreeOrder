@@ -128,6 +128,18 @@ public class VerticalOrder {
                                 }
                             }
                         }
+                        //print Emails
+                        /*for (Relations r : relations) {
+                            if (rd.getId().equals(r.getParent())) {
+                                for (RelationDescription rd2 : relDescr) {
+                                    if (rd2.getId().equals(r.getNode()) && rd2.getType().equals("User")) {
+                                        for (Users us : users) {
+                                            System.out.println("!Email = " + us.getEmail());
+                                        }
+                                    }
+                                }
+                            }
+                        }*/
                     }
                 }
 
