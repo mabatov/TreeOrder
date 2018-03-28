@@ -75,31 +75,34 @@ public class VerticalOrder {
     public static class TreeNode
     {
         long id;
+
         public ArrayList<TreeNode> childs = new ArrayList<>();
+        public StringBuilder email = new StringBuilder();
 
         TreeNode(long id)
         {
             this.id=id;
         }
-
-        TreeNode(ArrayList<TreeNode> childs) {
-            this.childs = childs;
-        }
     }
 
-
     public void postOrder(TreeNode root) {
-
         try {
 
             if(root !=  null) {
-                //System.out.printf("%d \n", root.id);
 
                 for (Relations r : relations) {
                     if (r.getParent().equals(root.id) && r.getLevel().equals(firstLevel)) {
-                        postOrder(new TreeNode(r.getNode()));
+                        TreeNode n;
+                        postOrder(n = new TreeNode(r.getNode()));
+                        root.childs.add(n);
                     }
                 }
+
+                /*System.out.println("Начало детей ноды: " + root.id);
+                for(int i = 0; i<root.childs.size(); i++){
+                    System.out.println(root.childs.get(i).id);
+                }
+                System.out.println("Конец детей ноды: " + root.id);*/
 
                 for (RelationDescription rd : relDescr) {
                     if (rd.getId().equals(root.id)) {
@@ -124,25 +127,14 @@ public class VerticalOrder {
                             for (Users us : users) {
                                 if (rd.getObjectId().equals(us.getId())) {
                                     System.out.println("User: " + us.getLogin());
-                                    System.out.println(us.getEmail());
                                 }
                             }
                         }
-                        //print Emails
-                        /*for (Relations r : relations) {
-                            if (rd.getId().equals(r.getParent())) {
-                                for (RelationDescription rd2 : relDescr) {
-                                    if (rd2.getId().equals(r.getNode()) && rd2.getType().equals("User")) {
-                                        for (Users us : users) {
-                                            System.out.println("!Email = " + us.getEmail());
-                                        }
-                                    }
-                                }
-                            }
-                        }*/
                     }
                 }
 
+                printEmail(root);
+                //System.out.println(printEmail(root));
             }
         } catch (Exception e) {
             System.out.println(e);
@@ -163,6 +155,35 @@ public class VerticalOrder {
     }
 
 
+    public StringBuilder printEmail(TreeNode root){
+
+        if (root.email.length() == 0) {
+            for (RelationDescription rd : relDescr) {
+                if (rd.getId().equals(root.id) && rd.getType().equals("User")) {
+                    for (Users us : users) {
+                        if (rd.getObjectId().equals(us.getId())) {
+                            root.email.append(us.getEmail());
+                        }
+                    }
+                }
+            }
+        }
+
+        if (root.email.length() != 0) {
+            return root.email;
+        }
+
+        for (TreeNode childNode : root.childs){
+            if (root.email.length()==0) {
+                root.email.append(printEmail(childNode));
+            } else
+            root.email.append(";" + printEmail(childNode));
+        }
+
+        return root.email;
+    }
+
+
     public static void main(String[] args)
     {
         VerticalOrder bi = new VerticalOrder();
@@ -171,6 +192,5 @@ public class VerticalOrder {
         System.out.println("Using Recursive solution:");
 
         bi.postOrder(rootNode);
-
     }
 }
