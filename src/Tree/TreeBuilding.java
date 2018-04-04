@@ -3,13 +3,24 @@ package Tree;
 import POJO.*;
 import com.google.gson.Gson;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
 
-public class VerticalOrder {
+public class TreeBuilding
+{
+    public long id;
 
+    public ArrayList<TreeBuilding> childs = new ArrayList<>();
+    public StringBuilder email = new StringBuilder();
+
+    public TreeBuilding(long id)
+    {
+        this.id=id;
+    }
 
     public static Gson gson = new Gson();
     public static long firstLevel = 1;
@@ -72,29 +83,16 @@ public class VerticalOrder {
     }
 
 
-    public static class TreeNode
-    {
-        long id;
 
-        public ArrayList<TreeNode> childs = new ArrayList<>();
-        public StringBuilder email = new StringBuilder();
 
-        TreeNode(long id)
-        {
-            this.id=id;
-        }
-    }
-
-    public void postOrder(TreeNode root) {
+    public TreeBuilding postOrder() {
         try {
 
-            if(root !=  null) {
-
                 for (Relations r : relations) {
-                    if (r.getParent().equals(root.id) && r.getLevel().equals(firstLevel)) {
-                        TreeNode n;
-                        postOrder(n = new TreeNode(r.getNode()));
-                        root.childs.add(n);
+                    if (r.getParent().equals(this.id) && r.getLevel().equals(firstLevel)) {
+                        TreeBuilding n = new TreeBuilding(r.getNode());
+                        n.postOrder();
+                        this.childs.add(n);
                     }
                 }
 
@@ -105,7 +103,7 @@ public class VerticalOrder {
                 System.out.println("Конец детей ноды: " + root.id);*/
 
                 for (RelationDescription rd : relDescr) {
-                    if (rd.getId().equals(root.id)) {
+                    if (rd.getId().equals(this.id)) {
                         //для групп
                         if (rd.getType().equals("Group")) {
                             for (Groups gr : groups) {
@@ -133,9 +131,9 @@ public class VerticalOrder {
                     }
                 }
 
-                printEmail(root);
-                //System.out.println(printEmail(root));
-            }
+                //printEmail(root);
+                System.out.println(printEmail(this));
+
         } catch (Exception e) {
             System.out.println(e);
         } finally {
@@ -152,10 +150,11 @@ public class VerticalOrder {
                 }
             }
         }
+        return this;
     }
 
 
-    public StringBuilder printEmail(TreeNode root){
+    public StringBuilder printEmail(TreeBuilding root){
 
         if (root.email.length() == 0) {
             for (RelationDescription rd : relDescr) {
@@ -173,7 +172,7 @@ public class VerticalOrder {
             return root.email;
         }
 
-        for (TreeNode childNode : root.childs){
+        for (TreeBuilding childNode : root.childs){
             if (root.email.length()==0) {
                 root.email.append(printEmail(childNode));
             } else
@@ -186,11 +185,9 @@ public class VerticalOrder {
 
     public static void main(String[] args)
     {
-        VerticalOrder bi = new VerticalOrder();
-
-        TreeNode rootNode = new TreeNode(7103);
+        TreeBuilding rootNode = new TreeBuilding(7103);
         System.out.println("Using Recursive solution:");
 
-        bi.postOrder(rootNode);
+        rootNode.postOrder();
     }
 }
