@@ -11,12 +11,6 @@ import java.io.File;
 
 public class XMLParse {
 
-    public static String relatDescr;
-    public static String groups;
-    public static String projects;
-    public static String users;
-    public static String relations;
-
     public static NodeList nList = exp();
 
     public static NodeList exp() {
@@ -34,64 +28,15 @@ public class XMLParse {
         return nList;
     }
 
-
-    public static String setUs() {
-
-        for (int temp = 0; temp < nList.getLength(); temp++) {
-            Node nNode = nList.item(temp);
-            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-                Element eElement = (Element) nNode;
-                users = eElement.getElementsByTagName("users").item(0).getTextContent();
-            }
-        }
-        return users;
-    }
-
-    public static String setRD() {
+    public static String setD(String attr) {
 
         for (int temp = 0; temp < nList.getLength(); temp++) {
             Node nNode = nList.item(temp);
             if (nNode.getNodeType() == Node.ELEMENT_NODE) {
                 Element eElement = (Element) nNode;
-                relatDescr = eElement.getElementsByTagName("relatDescr").item(0).getTextContent();
+                attr = eElement.getElementsByTagName(attr).item(0).getTextContent();
             }
         }
-        return relatDescr;
-    }
-
-    public static String setR() {
-
-        for (int temp = 0; temp < nList.getLength(); temp++) {
-            Node nNode = nList.item(temp);
-            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-                Element eElement = (Element) nNode;
-                relations = eElement.getElementsByTagName("relations").item(0).getTextContent();
-            }
-        }
-        return relations;
-    }
-
-    public static String setGr() {
-
-        for (int temp = 0; temp < nList.getLength(); temp++) {
-            Node nNode = nList.item(temp);
-            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-                Element eElement = (Element) nNode;
-                groups = eElement.getElementsByTagName("groups").item(0).getTextContent();
-            }
-        }
-        return groups;
-    }
-
-    public static String setPr() {
-
-        for (int temp = 0; temp < nList.getLength(); temp++) {
-            Node nNode = nList.item(temp);
-            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-                Element eElement = (Element) nNode;
-                projects = eElement.getElementsByTagName("projects").item(0).getTextContent();
-            }
-        }
-        return projects;
+        return attr;
     }
 }

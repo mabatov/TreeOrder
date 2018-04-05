@@ -43,7 +43,7 @@ public class TreeBuilding
     public static void parseXML()
     {
         try {
-            String urlR = XMLParse.setR();
+            String urlR = XMLParse.setD("relations");
             URL objR = new URL(urlR);
             HttpURLConnection conR = (HttpURLConnection) objR.openConnection();
 
@@ -51,10 +51,11 @@ public class TreeBuilding
             br_relations = new BufferedReader(new InputStreamReader(conR.getInputStream()));
             relations = gson.fromJson(br_relations, Relations[].class);
 
-                String urlRD = XMLParse.setRD();
-                String urlGR = XMLParse.setGr();
-                String urlPR = XMLParse.setPr();
-                String urlUS = XMLParse.setUs();
+
+                String urlRD = XMLParse.setD("relatDescr");
+                String urlGR = XMLParse.setD("groups");
+                String urlPR = XMLParse.setD("projects");
+                String urlUS = XMLParse.setD("users");
 
                 //for relatDescr
                 URL objRD = new URL(urlRD);
@@ -107,8 +108,8 @@ public class TreeBuilding
                 if (rd.getType().equals("Group")) {
                     for (Groups gr : groups) {
                         if (rd.getObjectId().equals(gr.getId())) {
-                            //System.out.println("Group: " + gr.getName());
-                            nodeNames.add("Group: " + gr.getName());
+                            System.out.println("Group: " + gr.getName());
+                            //nodeNames.add("Group: " + gr.getName());
                         }
                     }
                 }
@@ -116,8 +117,8 @@ public class TreeBuilding
                 if (rd.getType().equals("Project")) {
                     for (Projects pr : projects) {
                         if (rd.getObjectId().equals(pr.getId())) {
-                            //System.out.println("Project: " + pr.getName());
-                            nodeNames.add("Project: " + pr.getName());
+                            System.out.println("Project: " + pr.getName());
+                            //nodeNames.add("Project: " + pr.getName());
                         }
                     }
                 }
@@ -125,8 +126,8 @@ public class TreeBuilding
                 if (rd.getType().equals("User")) {
                     for (Users us : users) {
                         if (rd.getObjectId().equals(us.getId())) {
-                            //System.out.println("User: " + us.getLogin());
-                            nodeNames.add("User: " + us.getLogin());
+                            System.out.println("User: " + us.getLogin());
+                            //nodeNames.add("User: " + us.getLogin());
                         }
                     }
                 }
@@ -134,7 +135,7 @@ public class TreeBuilding
         }
 
         printEmail(this);
-        //System.out.println(printEmail(this));
+        System.out.println(printEmail(this));
 
 
         return this;
@@ -178,8 +179,8 @@ public class TreeBuilding
 
         rootNode.postOrder();
 
-        for (String n : nodeNames){
+        /*for (String n : nodeNames){
             System.out.println(n);
-        }
+        }*/
     }
 }
