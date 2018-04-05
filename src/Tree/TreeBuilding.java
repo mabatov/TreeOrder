@@ -37,6 +37,8 @@ public class TreeBuilding
     public static BufferedReader br_projects = null;
     public static BufferedReader br_users = null;
 
+    public static ArrayList<String> nodeNames = new ArrayList<>();
+
 
     public static void parseXML()
     {
@@ -78,71 +80,63 @@ public class TreeBuilding
 
         } catch (Exception e) {
             System.out.println(e);
-        }
-    }
-
-
-
-
-    public TreeBuilding postOrder() {
-        try {
-
-                for (Relations r : relations) {
-                    if (r.getParent().equals(this.id) && r.getLevel().equals(firstLevel)) {
-                        TreeBuilding n = new TreeBuilding(r.getNode());
-                        n.postOrder();
-                        this.childs.add(n);
-                    }
-                }
-
-                for (RelationDescription rd : relDescr) {
-                    if (rd.getId().equals(this.id)) {
-                        //для групп
-                        if (rd.getType().equals("Group")) {
-                            for (Groups gr : groups) {
-                                if (rd.getObjectId().equals(gr.getId())) {
-                                    System.out.println("Group: " + gr.getName());
-                                }
-                            }
-                        }
-                        //для проектов
-                        if (rd.getType().equals("Project")) {
-                            for (Projects pr : projects) {
-                                if (rd.getObjectId().equals(pr.getId())) {
-                                    System.out.println("Project: " + pr.getName());
-                                }
-                            }
-                        }
-                        //для юзеров
-                        if (rd.getType().equals("User")) {
-                            for (Users us : users) {
-                                if (rd.getObjectId().equals(us.getId())) {
-                                    System.out.println("User: " + us.getLogin());
-                                }
-                            }
-                        }
-                    }
-                }
-
-                //printEmail(this);
-                System.out.println(printEmail(this));
-
-        } catch (Exception e) {
-            System.out.println(e);
         } finally {
             if (br_relatDescr != null) { try { br_relatDescr.close(); } catch (IOException e) { e.printStackTrace(); } }
             if (br_groups != null) { try { br_groups.close(); } catch (IOException e) { e.printStackTrace(); } }
             if (br_projects != null) { try { br_projects.close(); } catch (IOException e) { e.printStackTrace(); } }
             if (br_users != null) { try { br_users.close(); } catch (IOException e) { e.printStackTrace(); } }
+            if (br_relations != null) { try { br_relations.close(); } catch (IOException e) { e.printStackTrace(); } }
+        }
+    }
 
-            if (br_relations != null) {
-                try {
-                    br_relations.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+
+
+    public TreeBuilding postOrder() {
+
+        for (Relations r : relations) {
+            if (r.getParent().equals(this.id) && r.getLevel().equals(firstLevel)) {
+                TreeBuilding n = new TreeBuilding(r.getNode());
+                n.postOrder();
+                this.childs.add(n);
+            }
+        }
+
+        for (RelationDescription rd : relDescr) {
+            if (rd.getId().equals(this.id)) {
+                //для групп
+                if (rd.getType().equals("Group")) {
+                    for (Groups gr : groups) {
+                        if (rd.getObjectId().equals(gr.getId())) {
+                            //System.out.println("Group: " + gr.getName());
+                            nodeNames.add("Group: " + gr.getName());
+                        }
+                    }
+                }
+                //для проектов
+                if (rd.getType().equals("Project")) {
+                    for (Projects pr : projects) {
+                        if (rd.getObjectId().equals(pr.getId())) {
+                            //System.out.println("Project: " + pr.getName());
+                            nodeNames.add("Project: " + pr.getName());
+                        }
+                    }
+                }
+                //для юзеров
+                if (rd.getType().equals("User")) {
+                    for (Users us : users) {
+                        if (rd.getObjectId().equals(us.getId())) {
+                            //System.out.println("User: " + us.getLogin());
+                            nodeNames.add("User: " + us.getLogin());
+                        }
+                    }
                 }
             }
         }
+
+        printEmail(this);
+        //System.out.println(printEmail(this));
+
+
         return this;
     }
 
@@ -183,5 +177,9 @@ public class TreeBuilding
         System.out.println("Using Recursive solution:");
 
         rootNode.postOrder();
+
+        for (String n : nodeNames){
+            System.out.println(n);
+        }
     }
 }
