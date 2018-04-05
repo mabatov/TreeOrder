@@ -36,8 +36,7 @@
 /.idea/
 /libs/
 /src/theory/
-/src/Tree/BinaryTreePostOrder.java
-/src/Tree/Main.java
+/src/Other/
 /src/Tree/VerticalOrder.java
 config.xml
 FinalQualifyingWork.iml

@@ -37,6 +37,8 @@ public class TreeBuilding
     public static BufferedReader br_projects = null;
     public static BufferedReader br_users = null;
 
+
+    public static void parseXML()
     {
         try {
             String urlR = XMLParse.setR();
@@ -55,15 +57,12 @@ public class TreeBuilding
                 //for relatDescr
                 URL objRD = new URL(urlRD);
                 HttpURLConnection conRD = (HttpURLConnection) objRD.openConnection();
-
                 //for groups
                 URL objGR = new URL(urlGR);
                 HttpURLConnection conGR = (HttpURLConnection) objGR.openConnection();
-
                 //for projects
                 URL objPR = new URL(urlPR);
                 HttpURLConnection conPR = (HttpURLConnection) objPR.openConnection();
-
                 //for users
                 URL objUS = new URL(urlUS);
                 HttpURLConnection conUS = (HttpURLConnection) objUS.openConnection();
@@ -96,12 +95,6 @@ public class TreeBuilding
                     }
                 }
 
-                /*System.out.println("Начало детей ноды: " + root.id);
-                for(int i = 0; i<root.childs.size(); i++){
-                    System.out.println(root.childs.get(i).id);
-                }
-                System.out.println("Конец детей ноды: " + root.id);*/
-
                 for (RelationDescription rd : relDescr) {
                     if (rd.getId().equals(this.id)) {
                         //для групп
@@ -131,7 +124,7 @@ public class TreeBuilding
                     }
                 }
 
-                //printEmail(root);
+                //printEmail(this);
                 System.out.println(printEmail(this));
 
         } catch (Exception e) {
@@ -185,6 +178,7 @@ public class TreeBuilding
 
     public static void main(String[] args)
     {
+        parseXML();
         TreeBuilding rootNode = new TreeBuilding(7103);
         System.out.println("Using Recursive solution:");
 
