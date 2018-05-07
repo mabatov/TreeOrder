@@ -134,9 +134,8 @@ public class TreeBuilding
             }
         }
 
-        printEmail(this);
+        //printEmail(this);
         System.out.println(printEmail(this));
-
 
         return this;
     }
@@ -144,32 +143,27 @@ public class TreeBuilding
 
     public StringBuilder printEmail(TreeBuilding root){
 
-        if (root.email.length() == 0) {
+        if (root.email == null || root.email.toString().equals("")) {
             for (RelationDescription rd : relDescr) {
                 if (rd.getId().equals(root.id) && rd.getType().equals("User")) {
                     for (Users us : users) {
                         if (rd.getObjectId().equals(us.getId())) {
-                            root.email.append(us.getEmail());
+                            root.email.append(us.getEmail() + ";");
+                            //return root.email;
                         }
                     }
                 }
             }
         }
 
-        if (root.email.length() != 0) {
-            return root.email;
-        }
-
-        for (TreeBuilding childNode : root.childs){
-            if (root.email.length()==0) {
+        if (root.email.lastIndexOf(";") == -1) {
+            for (TreeBuilding childNode : root.childs) {
                 root.email.append(printEmail(childNode));
-            } else
-            root.email.append(";" + printEmail(childNode));
+            }
         }
 
         return root.email;
     }
-
 
     public static void main(String[] args)
     {
@@ -179,8 +173,8 @@ public class TreeBuilding
 
         rootNode.postOrder();
 
-        /*for (String n : nodeNames){
+        for (String n : nodeNames){
             System.out.println(n);
-        }*/
+        }
     }
 }
