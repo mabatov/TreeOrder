@@ -8,13 +8,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.*;
 
 public class TreeBuilding
 {
     public long id;
 
-    public ArrayList<TreeBuilding> childs = new ArrayList<>();
+    public ArrayList<TreeBuilding> children = new ArrayList<>();
     public StringBuilder email = new StringBuilder();
 
     public TreeBuilding(long id)
@@ -37,26 +37,21 @@ public class TreeBuilding
     public static BufferedReader br_projects = null;
     public static BufferedReader br_users = null;
 
-    public static ArrayList<String> nodeNames = new ArrayList<>();
+    public static Map<String, StringBuilder> nodeHashMap = new LinkedHashMap<>();
 
 
     public static void parseXML()
     {
         try {
-            String urlR = XMLParse.setD("relations");
-            URL objR = new URL(urlR);
-            HttpURLConnection conR = (HttpURLConnection) objR.openConnection();
+                String urlR = XMLParse.setNodeName("relations");
+                String urlRD = XMLParse.setNodeName("relatDescr");
+                String urlGR = XMLParse.setNodeName("groups");
+                String urlPR = XMLParse.setNodeName("projects");
+                String urlUS = XMLParse.setNodeName("users");
 
-
-            br_relations = new BufferedReader(new InputStreamReader(conR.getInputStream()));
-            relations = gson.fromJson(br_relations, Relations[].class);
-
-
-                String urlRD = XMLParse.setD("relatDescr");
-                String urlGR = XMLParse.setD("groups");
-                String urlPR = XMLParse.setD("projects");
-                String urlUS = XMLParse.setD("users");
-
+                //for relations
+                URL objR = new URL(urlR);
+                HttpURLConnection conR = (HttpURLConnection) objR.openConnection();
                 //for relatDescr
                 URL objRD = new URL(urlRD);
                 HttpURLConnection conRD = (HttpURLConnection) objRD.openConnection();
@@ -70,10 +65,12 @@ public class TreeBuilding
                 URL objUS = new URL(urlUS);
                 HttpURLConnection conUS = (HttpURLConnection) objUS.openConnection();
 
+                br_relations = new BufferedReader(new InputStreamReader(conR.getInputStream()));
                 br_relatDescr = new BufferedReader(new InputStreamReader(conRD.getInputStream()));
                 br_groups = new BufferedReader(new InputStreamReader(conGR.getInputStream()));
                 br_projects = new BufferedReader(new InputStreamReader(conPR.getInputStream()));
                 br_users = new BufferedReader(new InputStreamReader(conUS.getInputStream()));
+                relations = gson.fromJson(br_relations, Relations[].class);
                 relDescr = gson.fromJson(br_relatDescr, RelationDescription[].class);
                 groups = gson.fromJson(br_groups, Groups[].class);
                 projects = gson.fromJson(br_projects, Projects[].class);
@@ -98,44 +95,40 @@ public class TreeBuilding
             if (r.getParent().equals(this.id) && r.getLevel().equals(firstLevel)) {
                 TreeBuilding n = new TreeBuilding(r.getNode());
                 n.postOrder();
-                this.childs.add(n);
+                this.children.add(n);
             }
         }
 
         for (RelationDescription rd : relDescr) {
             if (rd.getId().equals(this.id)) {
-                //для групп
-                if (rd.getType().equals("Group")) {
-                    for (Groups gr : groups) {
-                        if (rd.getObjectId().equals(gr.getId())) {
-                            System.out.println("Group: " + gr.getName());
-                            //nodeNames.add("Group: " + gr.getName());
+                switch (rd.getType()) {
+
+                    case "Group": {
+                        for (Groups gr : groups) {
+                            if (rd.getObjectId().equals(gr.getId())) {
+                                nodeHashMap.put("Group: " + gr.getName(), printEmail(this));
+                            }
                         }
-                    }
-                }
-                //для проектов
-                if (rd.getType().equals("Project")) {
-                    for (Projects pr : projects) {
-                        if (rd.getObjectId().equals(pr.getId())) {
-                            System.out.println("Project: " + pr.getName());
-                            //nodeNames.add("Project: " + pr.getName());
+                    } break;
+
+                    case "Project": {
+                        for (Projects pr : projects) {
+                            if (rd.getObjectId().equals(pr.getId())) {
+                                nodeHashMap.put("Project: " + pr.getName(), printEmail(this));
+                            }
                         }
-                    }
-                }
-                //для юзеров
-                if (rd.getType().equals("User")) {
-                    for (Users us : users) {
-                        if (rd.getObjectId().equals(us.getId())) {
-                            System.out.println("User: " + us.getLogin());
-                            //nodeNames.add("User: " + us.getLogin());
+                    } break;
+
+                    case "User": {
+                        for (Users us : users) {
+                            if (rd.getObjectId().equals(us.getId())) {
+                                nodeHashMap.put("User: " + us.getLogin(), printEmail(this));
+                            }
                         }
-                    }
+                    } break;
                 }
             }
         }
-
-        //printEmail(this);
-        System.out.println(printEmail(this));
 
         return this;
     }
@@ -149,7 +142,6 @@ public class TreeBuilding
                     for (Users us : users) {
                         if (rd.getObjectId().equals(us.getId())) {
                             root.email.append(us.getEmail() + ";");
-                            //return root.email;
                         }
                     }
                 }
@@ -157,12 +149,21 @@ public class TreeBuilding
         }
 
         if (root.email.lastIndexOf(";") == -1) {
-            for (TreeBuilding childNode : root.childs) {
+            for (TreeBuilding childNode : root.children) {
                 root.email.append(printEmail(childNode));
             }
         }
 
         return root.email;
+    }
+
+
+    public static void consoleOutput(){
+        for (Map.Entry<String, StringBuilder> entry : nodeHashMap.entrySet()) {
+            String typeWithName = entry.getKey();
+            StringBuilder email = entry.getValue();
+            System.out.println(typeWithName + "\n" + email);
+        }
     }
 
     public static void main(String[] args)
@@ -173,8 +174,7 @@ public class TreeBuilding
 
         rootNode.postOrder();
 
-        for (String n : nodeNames){
-            System.out.println(n);
-        }
+        consoleOutput();
+
     }
 }

@@ -11,32 +11,32 @@ import java.io.File;
 
 public class XMLParse {
 
-    public static NodeList nList = exp();
+    public static NodeList nodeList = getURL();
 
-    public static NodeList exp() {
+    public static NodeList getURL() {
 
         try {
-            File inputFile = new File("config.xml");
+            File configFile = new File("config.xml");
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(inputFile);
-            nList = doc.getElementsByTagName("links");
+            Document doc = dBuilder.parse(configFile);
+            nodeList = doc.getElementsByTagName("hyperlinks");
         }
         catch (Exception e) {
             e.printStackTrace();
         }
-        return nList;
+        return nodeList;
     }
 
-    public static String setD(String attr) {
-
-        for (int temp = 0; temp < nList.getLength(); temp++) {
-            Node nNode = nList.item(temp);
-            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-                Element eElement = (Element) nNode;
-                attr = eElement.getElementsByTagName(attr).item(0).getTextContent();
+    public static String setNodeName(String nodeName) {
+        String text = "";
+        for (int temp = 0; temp < nodeList.getLength(); temp++) {
+            Node node = nodeList.item(temp);
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                Element eElement = (Element) node;
+                text = eElement.getElementsByTagName(nodeName).item(0).getTextContent();
             }
         }
-        return attr;
+        return text;
     }
 }
