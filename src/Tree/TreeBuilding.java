@@ -10,85 +10,100 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
 
+
+/**
+ * Класс перебора элементов дерева с использованием алгоритма
+ * "Обход дерева в глубину" и рекурсивной функции.
+ *
+ * @author  Nikita Mabatov
+ * @version 1.6
+ * @since   10.05.2018
+ */
+
 public class TreeBuilding
 {
+    /** Поле идентификатора узла дерева */
     public long id;
 
+    /** Массив с идентификаторами дочерних узлов для конкретного элемента */
     public ArrayList<TreeBuilding> children = new ArrayList<>();
+    /** Поле почтового адреса узла */
     public StringBuilder email = new StringBuilder();
 
+    /**
+     * Конструктор - создание нового объекта
+     * @param id - идентификатор узла
+     * @see TreeBuilding#TreeBuilding(long)
+     */
     public TreeBuilding(long id)
     {
         this.id=id;
     }
 
+    /** Поле класса Gson, предназначенного для работы с JSON-форматом */
     public static Gson gson = new Gson();
+    /** Поле первый уровень */
     public static long firstLevel = 1;
 
+    /** Поле сущность класса BufferedReader */
+    public static BufferedReader br_entity = null;
+
+    /** Группа массивов обращения к классам
+     * структуры, описывающей конкретный JSON-файл */
     public static Relations[] relations;
     public static RelationDescription[] relDescr;
     public static Groups[] groups;
     public static Projects[] projects;
     public static Users[] users;
 
-    public static BufferedReader br_relations = null;
-    public static BufferedReader br_relatDescr = null;
-    public static BufferedReader br_groups = null;
-    public static BufferedReader br_projects = null;
-    public static BufferedReader br_users = null;
+    /** Хэш-таблица, содержащая данные об узлах.
+     * В качестве ключа - объекты класса Nodes {@link Nodes} */
+    public static Map<Nodes, StringBuilder> nodeHashMap = new LinkedHashMap<>();
 
-    public static Map<String, StringBuilder> nodeHashMap = new LinkedHashMap<>();
-
-
+    /** Функция последовательной передачи параметров (сущностей) в класс {@link XMLParsing}
+     * @exception Exception Отлавливает любой тип исключения
+     * @exception IOException Отлавливает исключения ввода-вывода */
     public static void parseXML()
     {
         try {
-                String urlR = XMLParse.setNodeName("relations");
-                String urlRD = XMLParse.setNodeName("relatDescr");
-                String urlGR = XMLParse.setNodeName("groups");
-                String urlPR = XMLParse.setNodeName("projects");
-                String urlUS = XMLParse.setNodeName("users");
 
-                //for relations
-                URL objR = new URL(urlR);
-                HttpURLConnection conR = (HttpURLConnection) objR.openConnection();
-                //for relatDescr
-                URL objRD = new URL(urlRD);
-                HttpURLConnection conRD = (HttpURLConnection) objRD.openConnection();
-                //for groups
-                URL objGR = new URL(urlGR);
-                HttpURLConnection conGR = (HttpURLConnection) objGR.openConnection();
-                //for projects
-                URL objPR = new URL(urlPR);
-                HttpURLConnection conPR = (HttpURLConnection) objPR.openConnection();
-                //for users
-                URL objUS = new URL(urlUS);
-                HttpURLConnection conUS = (HttpURLConnection) objUS.openConnection();
+            String[] entities = {"relations", "relatDescr", "groups", "projects", "users"};
 
-                br_relations = new BufferedReader(new InputStreamReader(conR.getInputStream()));
-                br_relatDescr = new BufferedReader(new InputStreamReader(conRD.getInputStream()));
-                br_groups = new BufferedReader(new InputStreamReader(conGR.getInputStream()));
-                br_projects = new BufferedReader(new InputStreamReader(conPR.getInputStream()));
-                br_users = new BufferedReader(new InputStreamReader(conUS.getInputStream()));
-                relations = gson.fromJson(br_relations, Relations[].class);
-                relDescr = gson.fromJson(br_relatDescr, RelationDescription[].class);
-                groups = gson.fromJson(br_groups, Groups[].class);
-                projects = gson.fromJson(br_projects, Projects[].class);
-                users = gson.fromJson(br_users, Users[].class);
+            for (String entity : entities)
+            {
+                URL url = new URL(XMLParsing.setNodeName(entity));
+                HttpURLConnection conURL = (HttpURLConnection) url.openConnection();
+                br_entity = new BufferedReader(new InputStreamReader(conURL.getInputStream()));
 
+                switch (entity) {
+                    case "relations" : {
+                        relations = gson.fromJson(br_entity, Relations[].class);
+                    } break;
+                    case "relatDescr" : {
+                        relDescr = gson.fromJson(br_entity, RelationDescription[].class);
+                    } break;
+                    case "groups" : {
+                        groups = gson.fromJson(br_entity, Groups[].class);
+                    } break;
+                    case "projects" : {
+                        projects = gson.fromJson(br_entity, Projects[].class);
+                    } break;
+                    case "users" : {
+                        users = gson.fromJson(br_entity, Users[].class);
+                    } break;
+                }
+
+            }
         } catch (Exception e) {
             System.out.println(e);
         } finally {
-            if (br_relatDescr != null) { try { br_relatDescr.close(); } catch (IOException e) { e.printStackTrace(); } }
-            if (br_groups != null) { try { br_groups.close(); } catch (IOException e) { e.printStackTrace(); } }
-            if (br_projects != null) { try { br_projects.close(); } catch (IOException e) { e.printStackTrace(); } }
-            if (br_users != null) { try { br_users.close(); } catch (IOException e) { e.printStackTrace(); } }
-            if (br_relations != null) { try { br_relations.close(); } catch (IOException e) { e.printStackTrace(); } }
+            if (br_entity != null) { try { br_entity.close(); } catch (IOException e) { e.printStackTrace(); } }
         }
     }
 
 
-
+    /** Рекурсивная функция обхода всех узлов дерева
+     * @return возвращает ссылку на текущий объект (идентификатор узла) */
     public TreeBuilding postOrder() {
 
         for (Relations r : relations) {
@@ -106,7 +121,7 @@ public class TreeBuilding
                     case "Group": {
                         for (Groups gr : groups) {
                             if (rd.getObjectId().equals(gr.getId())) {
-                                nodeHashMap.put("Group: " + gr.getName(), printEmail(this));
+                                nodeHashMap.put(new Nodes("Group", gr.getName()), printEmail(this));
                             }
                         }
                     } break;
@@ -114,7 +129,7 @@ public class TreeBuilding
                     case "Project": {
                         for (Projects pr : projects) {
                             if (rd.getObjectId().equals(pr.getId())) {
-                                nodeHashMap.put("Project: " + pr.getName(), printEmail(this));
+                                nodeHashMap.put(new Nodes("Project", pr.getName()), printEmail(this));
                             }
                         }
                     } break;
@@ -122,18 +137,20 @@ public class TreeBuilding
                     case "User": {
                         for (Users us : users) {
                             if (rd.getObjectId().equals(us.getId())) {
-                                nodeHashMap.put("User: " + us.getLogin(), printEmail(this));
+                                nodeHashMap.put(new Nodes("User", us.getLogin()), printEmail(this));
                             }
                         }
                     } break;
                 }
             }
         }
-
         return this;
     }
 
-
+    /** Рекурсивная функция присвоения узлу всех возможных почтовых адресов
+     * его дочерних элементов, если такие имеются
+     * @param root - идентификатор узла
+     * @return возвращает ссылку на текущий объект (идентификатор узла) */
     public StringBuilder printEmail(TreeBuilding root){
 
         if (root.email == null || root.email.toString().equals("")) {
@@ -142,6 +159,7 @@ public class TreeBuilding
                     for (Users us : users) {
                         if (rd.getObjectId().equals(us.getId())) {
                             root.email.append(us.getEmail() + ";");
+                            return root.email;
                         }
                     }
                 }
@@ -157,24 +175,29 @@ public class TreeBuilding
         return root.email;
     }
 
-
+    /** Функция вывода всех значений хэш-таблицы
+     * {@link TreeBuilding#nodeHashMap} в консоль */
     public static void consoleOutput(){
-        for (Map.Entry<String, StringBuilder> entry : nodeHashMap.entrySet()) {
-            String typeWithName = entry.getKey();
+        for (Map.Entry<Nodes, StringBuilder> entry : nodeHashMap.entrySet()) {
+            String typeWithName = entry.getKey().type + ": " + entry.getKey().name;
             StringBuilder email = entry.getValue();
             System.out.println(typeWithName + "\n" + email);
         }
     }
 
+    /** Основная функция, в которой запускается в нужном порядке
+     * вся фунцкиональная логика класса {@link TreeBuilding} */
     public static void main(String[] args)
     {
         parseXML();
+
+        /** Объект класса {@link TreeBuilding}, содержащий в качестве
+         * параметра идентификатор корневого элемента дерева */
         TreeBuilding rootNode = new TreeBuilding(7103);
         System.out.println("Using Recursive solution:");
 
         rootNode.postOrder();
 
         consoleOutput();
-
     }
 }

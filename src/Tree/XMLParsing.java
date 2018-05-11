@@ -9,7 +9,14 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 
-public class XMLParse {
+/**
+ * Класс синтаксичкеского анализа XML-файла,
+ * который содержит конфигурационные данные.
+ *
+ * @author  Nikita Mabatov
+ * @version 1.6
+ * @since   10.05.2018 */
+public class XMLParsing {
 
     public static NodeList nodeList = getURL();
 
